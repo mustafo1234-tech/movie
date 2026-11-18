@@ -1,0 +1,39 @@
+﻿services:
+  bot:
+    build: .
+    container_name: movieuz_bot
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      ADMIN_IDS: ${ADMIN_IDS}
+      DATABASE_URL: postgresql+asyncpg://movieuz:movieuz@db:5432/movieuz
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: INFO
+    volumes:
+      - ./translations:/app/translations:ro
+
+  db:
+    image: postgres:16-alpine
+    container_name: movieuz_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: movieuz
+      POSTGRES_PASSWORD: movieuz
+      POSTGRES_DB: movieuz
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: movieuz_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
